@@ -1,0 +1,1073 @@
+{
+  "name": "To Mealie Reciepe",
+  "nodes": [
+    {
+      "parameters": {
+        "guildIds": [
+          "1437547071417745590"
+        ],
+        "channelIds": [
+          "1437553639047692449"
+        ],
+        "pattern": "every",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-discord-trigger.discordTrigger",
+      "typeVersion": 1,
+      "position": [
+        -704,
+        48
+      ],
+      "id": "a00bf2d3-31e5-4973-bb69-9bdb3adc6811",
+      "name": "Discord Trigger",
+      "credentials": {
+        "discordBotTriggerApi": {
+          "id": "nqALDIyPAb26s86g",
+          "name": "Discord Bot Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=I will give you a html page,\ngenerate a json using the standar from the schema.org/Recipe \n\nDO NOT RETURN AN EXAMPLE BUT THE ACTUAL JSON FROM THE DATA BELOW\n\n- Do not forget these fields :\n\"image\": [img url],\n  \"url\": [website url],\n\nTranslate the recipe to {{ $('LANGUAGE').item.json.language }}\n\nHere is the data from wich you need to create the json : \n{{ $json.data }}\n\nYour response will be ONLY the reciepe JSON\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        240
+      ],
+      "id": "9ccc9a5c-e348-4e47-ad6b-8d1d2c5b0ee2",
+      "name": "Message a model",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tf1rBkJz7eErJeYR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Discord Trigger').item.json.content }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        256
+      ],
+      "id": "e1d3beac-7b34-4e59-8ac1-f40293e8be1b",
+      "name": "HTTP Request",
+      "retryOnFail": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Discord Trigger').item.json.content }}",
+                    "rightValue": "https://www.instagram.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "startsWith"
+                    },
+                    "id": "c10091fa-d1e4-47aa-bc5c-a1b537f12919"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "INSTA"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "63f60864-1d49-476c-a6c7-8f2b97ee835f",
+                    "leftValue": "={{ $('Discord Trigger').item.json.content }}",
+                    "rightValue": "https://www.tiktok.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TIKTOK"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2df0e0c1-ccd0-4394-93ac-00d1859cdc21",
+                    "leftValue": "={{ $('Discord Trigger').item.json.content }}",
+                    "rightValue": "https://www.youtube.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "YOUTUBE"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "327f73f3-d38c-48a2-be14-217a95f24278",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "WEB"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -224,
+        16
+      ],
+      "id": "d971bf46-ea0d-457b-b295-1c080337d7fc",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert recipe data assistant. I will provide you with a video transcript and the post's original caption text.\n\nYour task is to analyze BOTH inputs to generate a single, accurate schema.org/Recipe JSON object.\n\n- The video transcript is the primary source for instructions.\n- The caption text is the primary source for the ingredient list and title.\n- If there is a conflict (e.g., caption says \"1 cup\" but transcript says \"1.5 cups\"), trust the video transcript.\n- If a field is not mentioned in either input, do not include it.\n- If no recipe is found, return an empty JSON object: {}\n- Your response must be **only** the complete JSON object.\n-Translate the recipe to {{ $('LANGUAGE').item.json.language }}\n- Do not forget these fields :\n\"image\": [img url],\n  \"url\": [input url],\n---\nHERE IS THE VIDEO TRANSCRIPT:\n{{ $json.transcript }}\n---\nHERE IS THE CAPTION TEXT:\n{{ $json.caption }}\n---\nHERE IS THE POST URL:\n{{ $json.inputUrl }}\n---\nHERE IS THE DISPLAY IMG URL:\n{{ $json.displayUrl }}\n---"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -544
+      ],
+      "id": "f2c00194-ac96-414c-a25e-5b0e3fc66fbe",
+      "name": "Message a model1",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tf1rBkJz7eErJeYR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        -544
+      ],
+      "id": "49273425-808b-40c3-a184-214794031e08",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "CVQmx5Se22zxPaWc1",
+          "mode": "list",
+          "cachedResultName": "Tiktok | Instagram | Facebook | Transcriber (tictechid/anoxvanzi-Transcriber)",
+          "cachedResultUrl": "https://console.apify.com/actors/CVQmx5Se22zxPaWc1/input"
+        },
+        "customBody": "={\n    \"start_urls\": \"{{ $('Discord Trigger').item.json.content }}\"\n} ",
+        "timeout": {},
+        "memory": 256,
+        "build": "latest"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -464
+      ],
+      "id": "a7e52be2-da93-4e52-8924-7069e394648b",
+      "name": "Get transcript",
+      "credentials": {
+        "apifyApi": {
+          "id": "UblLZuJC4xJFdAc1",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "nH2AHrwxeTRJoN5hX",
+          "mode": "list",
+          "cachedResultName": "Instagram Post Scraper (apify/instagram-post-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/nH2AHrwxeTRJoN5hX/input"
+        },
+        "customBody": "={\n    \"username\": [\"{{ $('Discord Trigger').item.json.content }}\"\n    ]\n} ",
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -640
+      ],
+      "id": "fbf5ae38-45bf-400c-984c-9725aac1b4da",
+      "name": "Get description",
+      "credentials": {
+        "apifyApi": {
+          "id": "UblLZuJC4xJFdAc1",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert recipe data assistant. I will provide you with a video transcript and the post's original caption text.\n\nYour task is to analyze BOTH inputs to generate a single, accurate schema.org/Recipe JSON object.\n\n- The video transcript is the primary source for instructions.\n- The caption text is the primary source for the ingredient list and title.\n- If there is a conflict (e.g., caption says \"1 cup\" but transcript says \"1.5 cups\"), trust the video transcript.\n- If a field is not mentioned in either input, do not include it.\n- If no recipe is found, return an empty JSON object: {}\n- Your response must be **only** the complete JSON object.\n-Translate the recipe to {{ $('LANGUAGE').item.json.language }}\n- Do not forget these fields :\n\"image\": [img url],\n  \"url\": [input url],\n---\nHERE IS THE VIDEO TRANSCRIPT:\n{{ $json.transcript }}\n---\nHERE IS THE CAPTION TEXT:\n{{ $json.text }}\n---\nHERE IS THE POST URL:\n{{ $json.webVideoUrl }}\n---\nHERE IS THE DISPLAY IMG URL:\n{{ $json.musicMeta.originalCoverMediumUrl }}\n---"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -192
+      ],
+      "id": "2d4c770b-cf4c-4236-805b-bd665bbf2812",
+      "name": "Message a model2",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tf1rBkJz7eErJeYR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        -192
+      ],
+      "id": "2e40328f-639e-41af-a8bc-6ed3d8272cbe",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "emQXBCL3xePZYgJyn",
+          "mode": "list",
+          "cachedResultName": "Best Tiktok Transcripts Scraper (scrape-creators/best-tiktok-transcripts-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/emQXBCL3xePZYgJyn/input"
+        },
+        "customBody": "={\n    \"videos\": [\n        \"{{ $('Discord Trigger').item.json.content }}\"\n    ]\n}",
+        "timeout": {},
+        "memory": 256,
+        "build": "latest"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -112
+      ],
+      "id": "459a6a51-7d8a-466a-81b7-daa2f08a22c8",
+      "name": "Get transcript1",
+      "credentials": {
+        "apifyApi": {
+          "id": "UblLZuJC4xJFdAc1",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "GdWCkxBtKWOsKjdch",
+          "mode": "list",
+          "cachedResultName": "TikTok Scraper (clockworks/tiktok-scraper)",
+          "cachedResultUrl": "https://console.apify.com/actors/GdWCkxBtKWOsKjdch/input"
+        },
+        "customBody": "={\n    \"excludePinnedPosts\": false,\n    \"postURLs\": [\n        \"{{ $('Discord Trigger').item.json.content }}\"\n    ],\n    \"proxyCountryCode\": \"None\",\n    \"resultsPerPage\": 100,\n    \"scrapeRelatedVideos\": false,\n    \"shouldDownloadAvatars\": false,\n    \"shouldDownloadCovers\": true,\n    \"shouldDownloadMusicCovers\": false,\n    \"shouldDownloadSlideshowImages\": false,\n    \"shouldDownloadSubtitles\": false,\n    \"shouldDownloadVideos\": false\n}",
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        -288
+      ],
+      "id": "702bc9aa-dd9b-44b9-bdae-20e5017e7fb9",
+      "name": "Get description1",
+      "credentials": {
+        "apifyApi": {
+          "id": "UblLZuJC4xJFdAc1",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert recipe data assistant. I will provide you with a video transcript and the post's original caption text.\n\nYour task is to analyze BOTH inputs to generate a single, accurate schema.org/Recipe JSON object.\n\n- The video transcript is the primary source for instructions.\n- The caption text is the primary source for the ingredient list and title.\n- If there is a conflict (e.g., caption says \"1 cup\" but transcript says \"1.5 cups\"), trust the video transcript.\n- If a field is not mentioned in either input, do not include it.\n- If no recipe is found, return an empty JSON object: {}\n- Your response must be **only** the complete JSON object.\n-Translate the recipe to {{ $('LANGUAGE').item.json.language }}\n- Do not forget these fields :\n\"image\": [img url],\n  \"url\": [input url],\n---\nHERE IS THE VIDEO TRANSCRIPT:\n{{ $json.captions }}\n---\nHERE IS THE CAPTION TEXT:\n{{ $json.description }}\n---\nHERE IS THE POST URL:\n{{ $('Discord Trigger').item.json.content }}\n---\nHERE IS THE DISPLAY IMG URL:\n{{ $json.thumbnailUrl }}\n---"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        464,
+        48
+      ],
+      "id": "c1ed4239-e088-42ab-b984-f70f97f7172e",
+      "name": "Message a model3",
+      "retryOnFail": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tf1rBkJz7eErJeYR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "Run actor and get dataset",
+        "actorId": {
+          "__rl": true,
+          "value": "1s7eXiaukVuOr4Ueg",
+          "mode": "list",
+          "cachedResultName": "Youtube Transcripts (karamelo/youtube-transcripts)",
+          "cachedResultUrl": "https://console.apify.com/actors/1s7eXiaukVuOr4Ueg/input"
+        },
+        "customBody": "={\n    \"channelIDBoolean\": true,\n    \"channelNameBoolean\": true,\n    \"commentsBoolean\": false,\n    \"datePublishedBoolean\": true,\n    \"dateTextBoolean\": false,\n    \"descriptionBoolean\": true,\n    \"keywordsBoolean\": false,\n    \"likesBoolean\": false,\n    \"outputFormat\": \"singleStringText\",\n    \"proxyOptions\": {\n        \"useApifyProxy\": true,\n        \"apifyProxyGroups\": [\n            \"BUYPROXIES94952\"\n        ]\n    },\n    \"relativeDateTextBoolean\": false,\n    \"thumbnailBoolean\": true,\n    \"urls\": [\n        \"{{ $('Discord Trigger').item.json.content }}\"\n    ],\n    \"viewCountBoolean\": false\n}",
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        112,
+        64
+      ],
+      "id": "93c814f4-278a-463c-9675-2b2759e853fb",
+      "name": "Get description2",
+      "credentials": {
+        "apifyApi": {
+          "id": "UblLZuJC4xJFdAc1",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "=res",
+        "binaryPropertyName": "=reciepe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "f5883d3d-66b8-4ee3-ad34-ad7d53667e79",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "let res = $input.first().json.content.parts[0].text;\nlet lenght = res.length;\nreturn {res,lenght};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        48
+      ],
+      "id": "d4c95a07-e9be-4fb6-ba20-dcee6b308012",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "abb85bd5-ca4d-4e78-8c5b-78a313f6b5ce",
+              "leftValue": "={{ $json.lenght }}",
+              "rightValue": 4000,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        48
+      ],
+      "id": "dbb98be2-0b60-444d-a5f6-9ea66cdfbffa",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nreturn {language :\"french\"};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        48
+      ],
+      "id": "e46a18aa-8fa0-4543-9cfc-ea8cd2722e91",
+      "name": "LANGUAGE"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1437547071417745590",
+          "mode": "list",
+          "cachedResultName": "Aurepote",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1437553639047692449",
+          "mode": "list",
+          "cachedResultName": "to_mealie_recipies",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590/1437553639047692449"
+        },
+        "content": "❌ Échec du traitement de la recette 🍲 ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        784,
+        640
+      ],
+      "id": "2c47ee73-5835-4cfb-9e29-0a5c95c84d12",
+      "name": "ERROR MESSAGE",
+      "webhookId": "5408c142-c026-40a5-8b8b-c39322ebe3ae",
+      "credentials": {
+        "discordBotApi": {
+          "id": "3NLLcJLXMuLNjTPS",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1437547071417745590",
+          "mode": "list",
+          "cachedResultName": "Aurepote",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1437553639047692449",
+          "mode": "list",
+          "cachedResultName": "to_mealie_recipies",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590/1437553639047692449"
+        },
+        "content": "✅ Le traitement de la recette a commencé 🍲",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        48
+      ],
+      "id": "036415f6-5e08-499e-bb28-b0d91110a08d",
+      "name": "STARTING MESSAGE",
+      "webhookId": "5408c142-c026-40a5-8b8b-c39322ebe3ae",
+      "credentials": {
+        "discordBotApi": {
+          "id": "3NLLcJLXMuLNjTPS",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1437547071417745590",
+          "mode": "list",
+          "cachedResultName": "Aurepote",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1437553639047692449",
+          "mode": "list",
+          "cachedResultName": "to_mealie_recipies",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590/1437553639047692449"
+        },
+        "options": {},
+        "files": {
+          "values": [
+            {
+              "inputFieldName": "=reciepe"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        -16
+      ],
+      "id": "a0870a6a-e37a-42fc-9da0-9ce18e0d7812",
+      "name": "FILE MESSAGE",
+      "webhookId": "d83c2bf3-d4e3-4769-bdb5-9e0c8f288d4e",
+      "credentials": {
+        "discordBotApi": {
+          "id": "3NLLcJLXMuLNjTPS",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "1437547071417745590",
+          "mode": "list",
+          "cachedResultName": "Aurepote",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590"
+        },
+        "channelId": {
+          "__rl": true,
+          "value": "1437553639047692449",
+          "mode": "list",
+          "cachedResultName": "to_mealie_recipies",
+          "cachedResultUrl": "https://discord.com/channels/1437547071417745590/1437553639047692449"
+        },
+        "content": "Voici la recette :",
+        "options": {},
+        "embeds": {
+          "values": [
+            {
+              "description": "=```{{ $json.res }}```"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        112
+      ],
+      "id": "af50ab91-55cf-465a-acdc-9ad2212636df",
+      "name": "EMBEDED MESSAGE",
+      "webhookId": "d83c2bf3-d4e3-4769-bdb5-9e0c8f288d4e",
+      "credentials": {
+        "discordBotApi": {
+          "id": "3NLLcJLXMuLNjTPS",
+          "name": "Discord Bot account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Discord Trigger": [
+      {
+        "json": {
+          "id": "1441812280705548349",
+          "content": "https://www.youtube.com/watch?v=YOeILrXwthg",
+          "guildId": "1437547071417745590",
+          "channelId": "1437553639047692449",
+          "authorId": "351492151047225365",
+          "authorName": "aurepote",
+          "timestamp": 1763825235297,
+          "listenValue": "",
+          "authorIsBot": false,
+          "referenceId": null,
+          "referenceContent": null,
+          "referenceAuthorId": null,
+          "referenceAuthorName": null,
+          "referenceTimestamp": null,
+          "attachments": []
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Discord Trigger": {
+      "main": [
+        [
+          {
+            "node": "LANGUAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get description",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get transcript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get description1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get transcript1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get description2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transcript": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get description": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get transcript1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get description1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get description2": {
+      "main": [
+        [
+          {
+            "node": "Message a model3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ERROR MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "FILE MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EMBEDED MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LANGUAGE": {
+      "main": [
+        [
+          {
+            "node": "STARTING MESSAGE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERROR MESSAGE": {
+      "main": [
+        []
+      ]
+    },
+    "STARTING MESSAGE": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "timeSavedPerExecution": 5
+  },
+  "versionId": "9033a3e7-d77b-4827-9012-18c955f99737",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4ca97e9211b94b525fda63f47da59fea25d925e2665f32e4bdf102803e7e49f4"
+  },
+  "id": "QgmA9Y6uEaT8z0EJ",
+  "tags": []
+}
